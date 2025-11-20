@@ -18,5 +18,5 @@ for i, msfile in enumerate(filelist):
     os.makedirs(outlocation, exist_ok=True)
     outfile = os.path.join(outlocation, filename)
 
-    command = f"DP3 msin={msfile} msout={outfile} steps=[] msout.scalarflags=False  msout.uvw>
+    command = f"DP3 msin={msfile} msout={outfile} steps=[] msout.scalarflags=False  msout.uvwcompression=False msout.antennacompression=False"
     subprocess.run(command, shell=True, check=True, executable="/bin/bash")
