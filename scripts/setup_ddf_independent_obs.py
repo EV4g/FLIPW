@@ -1,3 +1,4 @@
+
 #pseudocode
 #locate .sif file
 #locate tier1-config.cfg file
@@ -27,45 +28,81 @@
 import os
 import glob
 import subprocess
+from termcolor import colored
+import numpy as np
+import shutil
 
-decompress = False #enable if LINC compressed the data, but you're using a ddf version that cannot handle that yet.
+decompress = True #enable if LINC compressed the data, but you're using a ddf version that cannot handle that yet.
 
 #### setup
 try:
     singularity_image = glob.glob("flocs*.sif")[0] #"flocs_v6.0.0_znver2_znver2.sif"
-    print("Using", singularity_image)
+    print("Using", colored(singularity_image, "green"))
 except:
-    print("No .sif file found")
+    print(colored("No .sif file found", "red"))
 
 try:
     config_file = glob.glob("*.cfg")[0] #"tier1-config.cfg"
-    print("Using", config_file)
+    print("Using", colored(config_file, "green"))
 except:
-    print("No .cfg file found")
+    print(colored("No .cfg file found", "red"))
 
-# check linc-target dir
-linc_dir = glob.glob("linc_out*")[0]
-print("Using", linc_dir)
+#### check linc-target dir
+linc_dirs = glob.glob("linc_out*")
+if decompress == True:
+    if "linc_out_uncompressed" in linc_dirs:
+        linc_dir = "linc_out_uncompressed"
+        decompress = False
+    elif "linc_out" in linc_dirs:
+        linc_dir = "linc_out"
+else:
+    linc_dir = linc_dirs[0]
 
-observations = [folder.split("/")[-1] for folder in glob.glob(linc_dir + "/*")]
-print("Found observations:", observations)
+print("Using", colored(linc_dir+"/", "green"), "Decompress:", decompress, "\n")
 
-# make dirs for each obs
+observations = np.sort([folder.split("/")[-1] for folder in glob.glob(linc_dir + "/*")])
+print("Found observations:", observations, "\n")
+
+#### make dirs for each obs
 for obs in observations:
     os.makedirs(obs, exist_ok=True)
-    print("Made dir:", obs)
 
-#### check compression requirements
-if (linc_dir == "linc_out") and (decompress == True):
-    try:    
+#### check compression requirements, run DP3
+if decompress == True:
+    try:
         glob.glob("metadata_uncompressor.py")[0]
         print("Decompression started")
         subprocess.run("python3", "metadata_uncompressor.py")
-        print("Decompression done")
+        print(colored("Decompression done\n", "green"))
     except:
-	print("Decompressor not found, skipping")
-
-    # make linc_out_uncompressed
-    # uncompress the *.ms files with DP3
+        exit(colored("Decompressor not found", "red"))
 else:
-    print("Decompression step skipped, not needed")
+    print("Decompression step skipped, not needed\n")
+
+#### move folder to L-observations/
+for obs in observations:
+    source_dir = f"{linc_dir}/{obs}/results/"
+    target_dir = f"{obs}/{linc_dir}/"
+    if os.path.exists(target_dir):
+        print(colored(f"Target {target_dir} already exists, skip copy", "yellow"))
+    else:
+        shutil.move(source_dir, target_dir)
+        print(f"Copied {source_dir} to {target_dir}")
+
+#### move .cfg to each observation folder
+print("\n")
+for obs in observations:
+    shutil.copy(config_file, f"{obs}/{config_file}")
+    print("Copied config file to:", obs+"/")
+
+#### generate batch file per observation
+print("\n")
+for obs in observations:
+    subprocess.run(["python3", "make_ddf_batch.py", "--observation="+obs, "--linc_dir="+linc_dir], check=True)
+    print(f"Made batch: [{obs}, {linc_dir}]")
+
+
+print("\n")
+print(colored("All done", "green"))
+print("\n")
+
