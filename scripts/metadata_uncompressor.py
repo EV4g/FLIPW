@@ -2,6 +2,7 @@ import os
 import glob
 from pathlib import Path
 import subprocess
+from termcolor import colored
 
 filelocation = "linc_out/L*/results/*ms"
 outdir = "linc_out_uncompressed/"
@@ -12,7 +13,7 @@ for i, msfile in enumerate(filelist):
     observation = Path(msfile).parts[1]
     filename = Path(msfile).parts[-1]
 
-    print("["+str(i + 1)+" / "+str(len(filelist))+"]", filename)
+    print(colored("["+str(i + 1)+" / "+str(len(filelist))+"]  "+str(filename), "green"))
 
     outlocation = os.path.join(outdir, observation, "results")
     os.makedirs(outlocation, exist_ok=True)
