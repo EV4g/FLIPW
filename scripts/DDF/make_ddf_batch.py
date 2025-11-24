@@ -23,9 +23,9 @@ singularity exec \\
 
 parser = argparse.ArgumentParser(description='Setting up the ddf run')
 parser.add_argument('--observation', type=str, help='observation-ID for run', default="L2014919")
-parset.add_argument("--linc_dir", type=str, help='linc_out or linc_out_uncompressed', default='linc_out')
+parser.add_argument("--linc_dir", type=str, help='linc_out or linc_out_uncompressed', default='linc_out')
 args = parser.parse_args()
 
 filename = args.observation+"_DDF_submit.sh"
-#write_slurm_script(os.path.join(args.observation, filename), args.observation, args.linc_dir)
-print(os.path.join(args.observation, filename))
+write_slurm_script(os.path.join(args.observation, filename), args.observation, args.linc_dir)
+#print(os.path.join(args.observation, filename))
