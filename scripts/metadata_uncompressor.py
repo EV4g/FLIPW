@@ -2,7 +2,12 @@ import os
 import glob
 from pathlib import Path
 import subprocess
-from termcolor import colored
+
+try:
+    from termcolor import colored
+except:
+    print("termcolor not found, ignoring color")
+    def colored(str, col): return str
 
 filelocation = "linc_out/L*/results/*ms"
 outdir = "linc_out_uncompressed/"
