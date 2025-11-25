@@ -35,6 +35,7 @@ except:
     def colored(str, col): return str
 
 decompress = True #enable if LINC compressed the data, but you're using a ddf version that cannot handle that yet.
+overwrite = False
 
 #### setup
 try:
@@ -65,7 +66,9 @@ if decompress == True:
 else:
     linc_dir = linc_dirs[0]
 
-print("Using", colored(linc_dir+"/", "green"), "Decompress:", decompress, "\n")
+print("Using", colored(linc_dir+"/", "green"))
+print("Decompress:", decompress)
+print("Overwrite:", overwrite)
 
 observations = np.sort([folder.split("/")[-1] for folder in glob.glob(linc_dir + "/*")])
 print("Found observations:", observations, "\n")
@@ -99,15 +102,32 @@ for obs in observations:
 #### move .cfg to each observation folder
 print("\n")
 for obs in observations:
-    shutil.copy(config_file, f"{obs}/{config_file}")
-    print("Copied config file to:", obs+"/")
+    config_dir = f"{obs}/{config_file}"
+    if not(os.path.isfile(config_dir)) or overwrite==True:
+        shutil.copy(config_file, config_dir)
+        print("Copied config file to:", obs+"/")
+    else:
+        print(colored(f"{obs}/{config_file} already exist, skipping", "yellow"))
 
 #### generate batch file per observation
 print("\n")
 for obs in observations:
-    subprocess.run(["python3", "make_ddf_batch.py", "--observation="+obs, "--linc_dir="+linc_dir], check=True)
-    print(f"Made batch: [{obs}, {linc_dir}]")
+    batch_dir = os.path.join(os.getcwd(), obs)
+    if not(os.path.isfile(os.path.join(batch_dir, f"{obs}_DDF_submit.sh"))) or overwrite==True:
+        subprocess.run(["python3", "make_ddf_batch.py", "--observation="+obs, "--linc_dir="+linc_dir], check=True)
+        print(f"Made batch: [{obs}, {linc_dir}]", colored("done", "green"))
+    else:
+        print(colored(f"{obs}_DDF_batch.sh already exist, skipping", "yellow"))
 
+#### generate mslist.txt / bigmslist.txt
+print("\n")
+for obs in observations:
+    msdir = os.path.join(os.getcwd(), obs, linc_dir)+"/*.ms"
+    if not(os.path.isfile(os.path.join(os.getcwd(), obs, "mslist.txt"))) or overwrite==True:
+        subprocess.run(["python3", "make_mslists.py", "--dir="+msdir])
+        print("msdir:", f"--dir={msdir}", colored("done", "green"))
+    else:
+        print(colored("mslist.txt already exist, skipping", "yellow"))
 
 print("\n")
 print(colored("All done", "green"))
