@@ -1,5 +1,4 @@
 
-#pseudocode
 #locate .sif file
 #locate tier1-config.cfg file
 #locate linc_out folder
@@ -14,9 +13,7 @@
 #       mslist.txt
 #       bigmslist.txt
 #       linc_out(_uncompressed)/
-#           L-observation/
-#               results/
-#                   *.ms
+#           *.ms
 #
 
 #optional locate linc_out_uncompressed
@@ -28,9 +25,14 @@
 import os
 import glob
 import subprocess
-from termcolor import colored
 import numpy as np
 import shutil
+
+try:
+    from termcolor import colored
+except:
+    print("termcolor not found, ignoring color")
+    def colored(str, col): return str
 
 decompress = True #enable if LINC compressed the data, but you're using a ddf version that cannot handle that yet.
 
@@ -46,6 +48,11 @@ try:
     print("Using", colored(config_file, "green"))
 except:
     print(colored("No .cfg file found", "red"))
+
+if os.path.isdir("../catalogues"):
+    print("Using", colored("../catalogues/", "green"))
+else:
+    print(colored("No catalogue folder found", "red"))
 
 #### check linc-target dir
 linc_dirs = glob.glob("linc_out*")
@@ -105,4 +112,5 @@ for obs in observations:
 print("\n")
 print(colored("All done", "green"))
 print("\n")
+
 
