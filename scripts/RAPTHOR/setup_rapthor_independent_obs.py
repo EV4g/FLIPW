@@ -95,7 +95,7 @@ print("")
 
 def write_slurm_script(observation, linc_dir):
     script_content = f"""#!/bin/bash
-#SBATCH --job-name=RAP{observation}
+#SBATCH --job-name=R{observation[1:]}
 #SBATCH --output=slurm_%j_{observation}.out
 #SBATCH -N 1
 #SBATCH -c 60
