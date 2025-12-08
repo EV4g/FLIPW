@@ -104,7 +104,7 @@ def write_slurm_script(observation, linc_dir):
 cd /project/lspc/Data/floris/run-rapthor/rapthor_out_{observation}
 
 # Base folder
-binds="/project/lspc/Data/floris/run-rapthor/{linc_dir},/project/lspc/Data/floris/run-rapthor,/project/lspc/Data/floris/catalogues"
+binds="{linc_dir},/project/lspc/Data/floris/run-rapthor"
 
 singularity exec -B $binds -H /home/lspc-fmartens01/ ../rapthor_latest.sif rapthor {observation}.parset
 """
