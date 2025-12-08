@@ -5,6 +5,7 @@ import glob
 import subprocess
 import argparse
 from pathlib import Path
+import sys
 
 try:
     from termcolor import colored
@@ -18,6 +19,21 @@ parser.add_argument('--observation', type=str, help='observation-ID', default="a
 args = parser.parse_args()
 
 observation = args.observation
+
+
+# check for linc_latest, or linc*.sif
+if os.path.isfile("rapthor_latest.sif"):
+    print(colored("rapthor_latest.sif found", "green"))
+    sif_file = "rapthor_latest.sif"
+else:
+    check = glob.glob("linc*.sif")
+    if len(check) > 0:
+        sif_file = check[0]
+        print(colored("rapthor_latest.sif not found", "yellow"), "defaulting to", colored(sif_file, "green"))
+    else:
+        print(colored("No .sif files found.", "yellow"), "attempting download of rapthor_latest.sif")
+        subprocess.run(["singularity", "pull", "rapthor_latest.sif", "docker://astronrd/rapthor"], check=True)
+
 
 # see if defaults.parset exists
 # if not, download it from the git
@@ -38,11 +54,16 @@ elif os.path.isdir(os.path.join("linc_out")):
 else:
     print(colored("No linc_out folder found", "yellow"))
 
+    # if linc is not found, either give an error or find out where it is
+    # and potentially de-compress it with DP3 if rapthor cannot handle compressed data yet
+
+
 
 # check if observation is given, if not, check all files in linc_dir and repeat for all observations present
 # put observation in list, such that it is iterable
 if observation == 'all':
     observation = np.sort([folder.split("/")[-1] for folder in glob.glob(linc_dir + "/*")])
+    if len(observation) == 0: sys.exit(colored("No observations found, stopping...", "yellow"))
 else:
     observation = [observation]
 
@@ -106,7 +127,7 @@ cd /project/lspc/Data/floris/run-rapthor/rapthor_out_{observation}
 # Base folder
 binds="{linc_dir},/project/lspc/Data/floris/run-rapthor"
 
-singularity exec -B $binds -H /home/lspc-fmartens01/ ../rapthor_latest.sif rapthor {observation}.parset
+singularity exec -B $binds -H /home/lspc-fmartens01/ ../{sif_file} rapthor {observation}.parset
 """
     file_path = os.path.join(f"rapthor_out_{observation}", f"{observation}_rapthor_batch.sh")
     with open(file_path, "w") as file:
