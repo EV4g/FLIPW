@@ -5,7 +5,7 @@ import argparse
 
 def write_slurm_script(filename, observation, linc_dir):
     script_content = f"""#!/bin/bash
-#SBATCH --job-name=DDF_{observation}
+#SBATCH --job-name=D{observation}
 #SBATCH --output=slurm_%j_{observation}.out
 #SBATCH -N 1
 #SBATCH -c 60
