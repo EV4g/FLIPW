@@ -1,16 +1,17 @@
 #Script to untar data retrieved from the LTA by using wget
-#It will DELETE the .tar file after extracting it.
-#
-#When using wget, the files are named, as an example:
 #SRMFifoGet.py?surl=srm:%2F%2Fsrm.grid.sara.nl:8443%2Fpnfs%2Fgrid.sara.nl%2Fdata%2Flofar%2Fops%2Fprojects%2Flofarschool%2F246403%2FL246403_SAP000_SB000_uv.MS_7d4aa18f.tar
-# This scripts will rename those files as the string after the last '%'
-# If you want to change that behaviour, modify line
-# outname=filename.split("%")[-1]
+#This scripts will rename those files as the string after the last '%'
 
 import os
 import glob
+import argparse
 
-path = os.getcwd()+"/P282_full/"
+parser = argparse.ArgumentParser(description='Untar LTA files')
+parser.add_argument('--dir', type=str, help='Directory with .tar files')
+args = parser.parse_args() 
+dir_with_tars = args.dir
+
+path = os.path.join(os.getcwd(), dir_with_tars)
 os.chdir(path)
 print("path:", path)
 
