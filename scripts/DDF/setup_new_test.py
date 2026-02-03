@@ -2,6 +2,7 @@ import subprocess
 import argparse
 import glob
 import shutil
+import os
 
 parser = argparse.ArgumentParser(description='Setting up new imaging test')
 parser.add_argument('--name', type=str, help="Name of new test", required=True)
@@ -9,7 +10,11 @@ parser.add_argument('--name', type=str, help="Name of new test", required=True)
 args = parser.parse_args()
 
 # copy template folder to new location
-shutil.copy(template_folder, args.name)
+if not os.path.isdir(args.name):
+    print("Copying folder...")
+    shutil.copytree("template_folder", args.name)
+else:
+    print(f"Folder {args.name} already exists, skipping copy")
 
 # should run "setup_new_test.py --name=..."
 linc_dir = os.path.join(args.name, "linc_out_uncompressed/*")
