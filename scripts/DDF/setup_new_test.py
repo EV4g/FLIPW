@@ -1,7 +1,7 @@
 import subprocess
-import os
 import argparse
 import glob
+import shutil
 
 parser = argparse.ArgumentParser(description='Setting up new imaging test')
 parser.add_argument('--name', type=str, help="Name of new test", required=True)
@@ -9,7 +9,7 @@ parser.add_argument('--name', type=str, help="Name of new test", required=True)
 args = parser.parse_args()
 
 # copy template folder to new location
-#os.system(f"cp -r template_folder {args.name}")
+shutil.copy(template_folder, args.name)
 
 # should run "setup_new_test.py --name=..."
 linc_dir = os.path.join(args.name, "linc_out_uncompressed/*")
@@ -20,8 +20,6 @@ f"--workdir={args.name}",
 f"--linc_dir={linc_dir}",
 f"--output_name={args.name}",
 f"--mask=test_mask.fits"])
-
-
 
 # update big_mslist.txt
 # update batch_SSD2.sh
