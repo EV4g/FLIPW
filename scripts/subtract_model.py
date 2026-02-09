@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# This program takes a list of measurement sets: `big-mslist.txt`
+# It then assumes the .ms files have both `DATA` and `MODEL-DATA` columns
+# It then subtracts `DATA` - `MODEL-DATA` --> `CORRECTED_DATA`
+# The `MODEL-DATA` column first requres a `SSD2-subtract.sh` to have been completed
+# `CORRECTED-DATA` can then be used as input for a follow-up imaging run
+
 from casacore.tables import table, makecoldesc
 import numpy as np
 
