@@ -58,6 +58,6 @@ for i, ms in enumerate(mslist):
 
     t.close()
 
-    print(f"  Completed [{i} / {len(mslist)}]")
+    print(colored(f"    Completed [{i+1} / {len(mslist)}]", "green"))
 
 print(colored("\nAll MSs processed successfully!", "green"))
