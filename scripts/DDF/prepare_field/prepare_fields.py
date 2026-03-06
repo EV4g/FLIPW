@@ -8,3 +8,4 @@ pointing = parser.parse_args().pointing
 print("Pointing: ", pointing)
 
 prepare_field(pointing, './', verbose=True)
+exit()
